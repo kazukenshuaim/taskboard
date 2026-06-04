@@ -132,3 +132,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # accountsアプリのCustomUserモデルを使用するための設定
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# ログイン後のリダイレクト先
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/tasks/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
