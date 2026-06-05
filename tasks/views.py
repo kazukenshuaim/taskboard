@@ -1,6 +1,78 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from .models import Task
+from django.urls import reverse_lazy
+from django.views import View
+from django.shortcuts import get_object_or_404, redirect
+from .forms import TaskForm
 
 
-class TaskListView(LoginRequiredMixin, TemplateView):
+class TaskListView(LoginRequiredMixin, ListView):
+    model = Task
     template_name = 'tasks/task_list.html'
+    context_object_name = 'tasks'
+
+    def get_queryset(self):
+        return Task.objects.filter(created_by=self.request.user)
+
+
+class TaskDetailView(LoginRequiredMixin, DetailView):
+    model = Task
+    template_name = 'tasks/task_detail.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        # 自分のタスクだけアクセス可能にする（他人のタスク URL に直アクセスすると 404）
+        return Task.objects.filter(created_by=self.request.user)
+
+class TaskCreateView(LoginRequiredMixin, CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/task_form.html'
+    success_url = reverse_lazy('tasks:task_list')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # カテゴリの選択肢をログインユーザーのものだけに絞る
+        form.fields['category'].queryset = self.request.user.categories.all()
+        return form
+
+
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/task_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('tasks:task_detail', kwargs={'pk': self.object.pk})
+
+    def get_queryset(self):
+        return Task.objects.filter(created_by=self.request.user)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['category'].queryset = self.request.user.categories.all()
+        return form
+
+
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
+    model = Task
+    template_name = 'tasks/task_confirm_delete.html'
+    success_url = reverse_lazy('tasks:task_list')
+
+    def get_queryset(self):
+        return Task.objects.filter(created_by=self.request.user)
+
+
+class TaskStatusUpdateView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        task = get_object_or_404(Task, pk=pk, created_by=request.user)
+        new_status = request.POST.get('status')
+        if new_status in dict(Task.STATUS_CHOICES):
+            task.status = new_status
+            task.save()
+        return redirect('tasks:task_detail', pk=pk)

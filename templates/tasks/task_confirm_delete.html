@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card border-danger">
+    <div class="card-header bg-danger text-white">タスクの削除</div>
+    <div class="card-body">
+        <p>「{{ object.title }}」を削除してもよいですか？この操作は取り消せません。</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">削除する</button>
+            <a href="{% url 'tasks:task_detail' object.pk %}" class="btn btn-secondary">キャンセル</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
