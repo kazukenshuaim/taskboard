@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>{{ task.title }}</h3>
+        {# 編集・削除ボタンは Day 7 で追加 #}
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ステータス</dt>
+            <dd class="col-sm-9">{{ task.get_status_display }}</dd>
+
+            <dt class="col-sm-3">カテゴリ</dt>
+            <dd class="col-sm-9">{{ task.category.name|default:'-' }}</dd>
+
+            <dt class="col-sm-3">期限</dt>
+            <dd class="col-sm-9">{{ task.due_date|default:'-' }}</dd>
+
+            <dt class="col-sm-3">説明</dt>
+            <dd class="col-sm-9">{{ task.description|linebreaks|default:'-' }}</dd>
+
+            <dt class="col-sm-3">作成日時</dt>
+            <dd class="col-sm-9">{{ task.created_at|date:"Y年m月d日 H:i" }}</dd>
+        </dl>
+    </div>
+</div>
+<a href="{% url 'tasks:task_list' %}" class="btn btn-link mt-2">← 一覧に戻る</a>
+{% endblock %}
