@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{% if object %}タスクを編集{% else %}新規タスク{% endif %}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">保存</button>
+    <a href="{% url 'tasks:task_list' %}" class="btn btn-secondary">キャンセル</a>
+</form>
+{% endblock %}
