@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Task
+from .models import Category, Task
 from django.urls import reverse_lazy
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
@@ -76,3 +76,51 @@ class TaskStatusUpdateView(LoginRequiredMixin, View):
             task.status = new_status
             task.save()
         return redirect('tasks:task_detail', pk=pk)
+
+
+class CategoryListView(LoginRequiredMixin, ListView):
+    model = Category
+    template_name = 'tasks/category_list.html'
+    context_object_name = 'categories'
+
+    def get_queryset(self):
+        return Category.objects.filter(created_by=self.request.user)
+
+
+class CategoryCreateView(LoginRequiredMixin, CreateView):
+    model = Category
+    fields = ['name']
+    template_name = 'tasks/category_form.html'
+    success_url = reverse_lazy('tasks:category_list')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
+
+class CategoryDeleteView(LoginRequiredMixin, DeleteView):
+    model = Category
+    template_name = 'tasks/category_confirm_delete.html'
+    success_url = reverse_lazy('tasks:category_list')
+
+    def get_queryset(self):
+        return Category.objects.filter(created_by=self.request.user)
+    
+    
+class TaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    template_name = 'tasks/task_list.html'
+    context_object_name = 'tasks'
+
+    def get_queryset(self):
+        queryset = Task.objects.filter(created_by=self.request.user)
+        category_id = self.request.GET.get('category')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.filter(created_by=self.request.user)
+        context['selected_category'] = self.request.GET.get('category', '')
+        return context

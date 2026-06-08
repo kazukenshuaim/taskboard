@@ -6,6 +6,26 @@
     <a href="{% url 'tasks:task_create' %}" class="btn btn-primary">+ 新規タスク</a>
 </div>
 
+<!-- カテゴリフィルタ -->
+<div class="mb-3">
+    <form method="get" class="d-inline-flex gap-2 align-items-center">
+        <label class="form-label mb-0">カテゴリ：</label>
+        <select name="category" class="form-select form-select-sm" style="width:auto">
+            <option value="">すべて</option>
+            {% for category in categories %}
+            <option value="{{ category.pk }}"
+                {% if selected_category == category.pk|stringformat:"s" %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-outline-secondary">絞り込み</button>
+        {% if selected_category %}
+        <a href="{% url 'tasks:task_list' %}" class="btn btn-sm btn-link">クリア</a>
+        {% endif %}
+    </form>
+</div>
+
 {% if tasks %}
 <table class="table table-hover">
     <thead>
