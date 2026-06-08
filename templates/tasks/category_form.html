@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>カテゴリを追加</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">追加</button>
+    <a href="{% url 'tasks:category_list' %}" class="btn btn-secondary">キャンセル</a>
+</form>
+{% endblock %}

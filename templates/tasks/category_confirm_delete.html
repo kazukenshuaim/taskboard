@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card border-danger">
+    <div class="card-header bg-danger text-white">カテゴリの削除</div>
+    <div class="card-body">
+        <p>「{{ object.name }}」を削除してもよいですか？</p>
+        <p class="text-muted small">このカテゴリに紐付いたタスクのカテゴリは「未設定」になります。</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">削除する</button>
+            <a href="{% url 'tasks:category_list' %}" class="btn btn-secondary">キャンセル</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
