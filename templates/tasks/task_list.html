@@ -6,25 +6,40 @@
     <a href="{% url 'tasks:task_create' %}" class="btn btn-primary">+ 新規タスク</a>
 </div>
 
-<!-- カテゴリフィルタ -->
-<div class="mb-3">
-    <form method="get" class="d-inline-flex gap-2 align-items-center">
-        <label class="form-label mb-0">カテゴリ：</label>
-        <select name="category" class="form-select form-select-sm" style="width:auto">
-            <option value="">すべて</option>
-            {% for category in categories %}
-            <option value="{{ category.pk }}"
-                {% if selected_category == category.pk|stringformat:"s" %}selected{% endif %}>
-                {{ category.name }}
-            </option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-sm btn-outline-secondary">絞り込み</button>
-        {% if selected_category %}
-        <a href="{% url 'tasks:task_list' %}" class="btn btn-sm btn-link">クリア</a>
-        {% endif %}
-    </form>
-</div>
+<!-- カテゴリと検索フィルタ -->
+<form method="get" class="mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <input type="text" name="q" value="{{ current_q }}"
+                   class="form-control form-control-sm" placeholder="キーワード検索...">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select form-select-sm">
+                <option value="">すべてのステータス</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="category" class="form-select form-select-sm">
+                <option value="">すべてのカテゴリ</option>
+                {% for category in categories %}
+                <option value="{{ category.pk }}"
+                    {% if current_category == category.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-outline-primary">検索</button>
+            <a href="{% url 'tasks:task_list' %}" class="btn btn-sm btn-outline-secondary">クリア</a>
+        </div>
+    </div>
+</form>
 
 {% if tasks %}
 <table class="table table-hover">
@@ -57,6 +72,31 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination justify-content-center mt-3">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}page={{ page_obj.previous_page_number }}">前へ</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}page={{ page_obj.next_page_number %}">次へ</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
 {% else %}
 <div class="alert alert-info">タスクがありません。新規タスクを作成してください。</div>
 {% endif %}
