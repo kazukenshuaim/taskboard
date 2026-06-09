@@ -13,9 +13,36 @@ class TaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = 'tasks/task_list.html'
     context_object_name = 'tasks'
+    paginate_by = 10
 
     def get_queryset(self):
-        return Task.objects.filter(created_by=self.request.user)
+        queryset = Task.objects.filter(created_by=self.request.user)
+
+        keyword = self.request.GET.get('q', '').strip()
+        if keyword:
+            queryset = queryset.filter(
+                Q(title__icontains=keyword) | Q(description__icontains=keyword)
+            )
+
+        status = self.request.GET.get('status', '')
+        if status:
+            queryset = queryset.filter(status=status)
+
+        category_id = self.request.GET.get('category', '')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.filter(created_by=self.request.user)
+        context['status_choices'] = Task.STATUS_CHOICES
+        # 現在の検索条件をテンプレートに渡す（フォームの入力値を維持するため）
+        context['current_q'] = self.request.GET.get('q', '')
+        context['current_status'] = self.request.GET.get('status', '')
+        context['current_category'] = self.request.GET.get('category', '')
+        return context
 
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
@@ -122,39 +149,3 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Category.objects.filter(created_by=self.request.user)
-    
-    
-class TaskListView(LoginRequiredMixin, ListView):
-    model = Task
-    template_name = 'tasks/task_list.html'
-    context_object_name = 'tasks'
-    paginate_by = 10
-
-    def get_queryset(self):
-        queryset = Task.objects.filter(created_by=self.request.user)
-
-        keyword = self.request.GET.get('q', '').strip()
-        if keyword:
-            queryset = queryset.filter(
-                Q(title__icontains=keyword) | Q(description__icontains=keyword)
-            )
-
-        status = self.request.GET.get('status', '')
-        if status:
-            queryset = queryset.filter(status=status)
-
-        category_id = self.request.GET.get('category', '')
-        if category_id:
-            queryset = queryset.filter(category_id=category_id)
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(created_by=self.request.user)
-        context['status_choices'] = Task.STATUS_CHOICES
-        # 現在の検索条件をテンプレートに渡す（フォームの入力値を維持するため）
-        context['current_q'] = self.request.GET.get('q', '')
-        context['current_status'] = self.request.GET.get('status', '')
-        context['current_category'] = self.request.GET.get('category', '')
-        return context
