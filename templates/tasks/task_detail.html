@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <h3>{{ task.title }}</h3>
+        <div>
+            <a href="{% url 'tasks:task_update' task.pk %}" class="btn btn-sm btn-outline-secondary">編集</a>
+            <a href="{% url 'tasks:task_delete' task.pk %}" class="btn btn-sm btn-outline-danger">削除</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ステータス</dt>
+            <dd class="col-sm-9">{{ task.get_status_display }}</dd>
+
+            <dt class="col-sm-3">カテゴリ</dt>
+            <dd class="col-sm-9">{{ task.category.name|default:'-' }}</dd>
+
+            <dt class="col-sm-3">期限</dt>
+            <dd class="col-sm-9">{{ task.due_date|default:'-' }}</dd>
+
+            <dt class="col-sm-3">説明</dt>
+            <dd class="col-sm-9">{{ task.description|linebreaks|default:'-' }}</dd>
+
+            <dt class="col-sm-3">作成日時</dt>
+            <dd class="col-sm-9">{{ task.created_at|date:"Y年m月d日 H:i" }}</dd>
+        
+            <dt class="col-sm-3">ステータス変更</dt>
+            <dd class="col-sm-9">
+                <form method="post" action="{% url 'tasks:task_status_update' task.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <select name="status" class="form-select form-select-sm d-inline w-auto">
+                        {% for value, label in task.STATUS_CHOICES %}
+                        <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">変更</button>
+                </form>
+            </dd>
+        </dl>
+    </div>
+</div>
+<a href="{% url 'tasks:task_list' %}" class="btn btn-link mt-2">← 一覧に戻る</a>
+{% endblock %}
