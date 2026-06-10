@@ -63,6 +63,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        messages.success(self.request, f'タスク「{form.instance.title}」を作成しました。')
         return super().form_valid(form)
 
     def get_form(self, form_class=None):
@@ -70,11 +71,6 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         # カテゴリの選択肢をログインユーザーのものだけに絞る
         form.fields['category'].queryset = self.request.user.categories.all()
         return form
-    
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        messages.success(self.request, f'タスク「{form.instance.title}」を作成しました。')
-        return super().form_valid(form)
 
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
