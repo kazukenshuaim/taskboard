@@ -142,3 +142,17 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+
+# 開発環境でのみ有効
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    
+    # 既存の INTERNAL_IPS はコメントアウトか削除して、以下を追記
+    # Docker環境でIP制限を回避するための設定
+    import socket
+    try:
+        hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+        INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+    except Exception:
+        INTERNAL_IPS = ["127.0.0.1"]
