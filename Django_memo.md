@@ -219,7 +219,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 
 ## 各処理の手順
 
-#### ① ユーザー登録とその情報のDB保存
+#### ① day03-ユーザー登録とその情報のDB保存
 1. `accounts/urls.py` が `/register/` へのアクセスを検知し、`RegisterView` を呼び出す。
 2. `RegisterView`（`views.py`）が `CustomUserCreationForm`（`forms.py`）を使って、入力されたユーザー名やパスワードに不備がないか検証する。
 3. 問題がなければ `CustomUser` モデル（`models.py`）経由でデータベース（PostgreSQL）に保存され、直後に `login()` 関数で自動ログインしてタスク一覧へリダイレクトする。
@@ -248,7 +248,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/)---------------------| (success_url へ遷移)
 ```
 
-#### ② ログイン
+#### ② day04-ログイン
 1. `accounts/urls.py` が `/login/` へのアクセスを検知し、Django標準の `LoginView` を呼び出す。
 2. `LoginView` が `templates/accounts/login.html` を表示し、ユーザーが入力した認証情報を検証する。
 3. 認証が成功すると、`config/settings.py` の `LOGIN_REDIRECT_URL` の設定に従って `/tasks/`（タスク一覧）へリダイレクトする。
@@ -273,7 +273,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: 指定ページへ)-----------------|
 ```
 
-#### ③ ログアウト
+#### ③ day04-ログアウト
 1. `templates/base.html` のログアウトボタン（POST送信）から `/accounts/logout/` へリクエストが送られる。
 2. `accounts/urls.py` がこれを受け取り、Django標準の `LogoutView` を呼び出す。
 3. `LogoutView` がセッションを破棄し、`config/settings.py` の `LOGOUT_REDIRECT_URL` の設定に従ってログイン画面へリダイレクトする。
@@ -293,7 +293,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: ログイン画面等へ)------------|
 ```
 
-#### ⑥ 未ログインユーザーの制限（※④⑤の前に連動）
+#### ④ day04-未ログインユーザーの制限（※⑤⑥の前に連動）
 1. ログインしていないユーザーが `/tasks/` などに直接アクセスする。
 2. 各ビュー（`TaskListView` など）に設定された `LoginRequiredMixin`（`views.py`）が、未ログイン状態であることを検知して処理をブロックする。
 3. `config/settings.py` の `LOGIN_URL` の設定に従って、ユーザーを自動的に `/accounts/login/` へ強制リダイレクトする。
@@ -310,7 +310,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(302リダイレクト: /accounts/login/?next=/tasks/)---|
 ```
 
-#### ④ タスク一覧表示
+#### ⑤ day06-タスク一覧表示
 1. `tasks/urls.py` が URL（`/tasks/`）を検知し、`TaskListView`（`views.py`）を呼び出す。
 2. `TaskListView` の `get_queryset()` メソッドが、`Task` モデル（`models.py`）を使って「現在ログインしているユーザーが作ったタスク（`created_by=self.request.user`）」だけをDBから取得する。
 3. 取得したデータが `templates/tasks/task_list.html` に送られ、`{% for task in tasks %}` ループによって表形式で画面に表示される。
@@ -338,7 +338,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(HTMLの表形式で一覧を表示)----------------|
 ```
 
-#### ⑤ タスク詳細表示
+#### ⑥ day06-タスク詳細表示
 1. 一覧画面のリンクから `/tasks/1/` のようなID付きのURLが送られ、`tasks/urls.py` が `TaskDetailView`（`views.py`）へ繋ぐ。
 2. `TaskDetailView` は他人のタスクを覗き見られないよう、自分のタスクの中から該当するID（`pk`）のデータをDBから1件だけ取得する。
 3. 取得した1件のタスクデータが `templates/tasks/task_detail.html` に渡され、タイトルや期限、説明文が詳しく表示される。
@@ -366,7 +366,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(カード型の詳細画面を表示)---------------|
 ```
 
-#### ⑦ タスク作成
+#### ⑦ day07-タスク作成
 1. `/tasks/create/` へのアクセスで `TaskCreateView`（`views.py`）が起動し、`TaskForm`（`forms.py`）を使って入力画面を表示する。
 2. ユーザーがフォームを入力して送信すると、`form_valid()` メソッドが動き、データに「作成者＝ログインユーザー（`created_by`）」の情報を裏側で自動追加する。
 3. `Task` モデルを通じてDBにデータが新規保存され、一覧画面へ戻る。
@@ -394,7 +394,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/)------------------| (success_url へ遷移)
 ```
 
-#### ⑧ タスク編集
+#### ⑧ day07-タスク編集
 1. `/tasks/1/update/` のようにID付きでアクセスすると、`TaskUpdateView`（`views.py`）が起動する。
 2. `TaskForm` にDBから取得した現在のタスク内容があらかじめ書き込まれた状態で、`templates/tasks/task_form.html` に表示される。
 3. ユーザーが内容を書き換えて保存すると、`form_valid()` が変更内容を検知し、DBの既存データを更新（SQLのUPDATE）して詳細画面へ戻る。
@@ -423,7 +423,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/5/)----------------| (編集したタスクの詳細画面へピンポイントで戻る)
 ```
 
-#### ⑨ タスク削除
+#### ⑨ day07-タスク削除
 1. `/tasks/1/delete/` へアクセスすると、`TaskDeleteView`（`views.py`）が起動し、`templates/tasks/task_confirm_delete.html` を表示する。
 2. ユーザーが画面で「削除する」ボタン（POST送信）を押すと、ビューが対象のタスクデータをDBから完全に削除（SQLのDELETE）する。
 3. 削除完了後、`success_url` に指定されたタスク一覧画面へリダイレクトする。
@@ -447,7 +447,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/)------------------| (success_url に基づき一覧へ戻る)
 ```
 
-#### ⑩ タスクステータス変更
+#### ⑩ day07-タスクステータス変更
 1. 詳細画面にあるステータス変更用の小さなフォーム（POST送信）から、`/tasks/1/status/` へリクエストが送られる。
 2. `tasks/urls.py` が `TaskStatusUpdateView`（`views.py`）を呼び出す。
 3. ビュー内の `post()` メソッドが動き、送られてきた新しい進捗（`todo` / `in_progress` / `done`）を直接タスクデータに上書き保存（`task.save()`）し、詳細画面を再読み込みする。
@@ -470,7 +470,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/5/)-----------------| (即座に元の詳細画面へ強制送還)
 ```
 
-#### ⑪ カテゴリ作成
+#### ⑪ day08-カテゴリ作成
 1. `CategoryCreateView`（`views.py`）が起動し、`templates/tasks/category_form.html` を表示する。
 2. 今回は専用のFormクラスを作っていないため、ビュー側で指定された `fields = ['name']` を基に、Djangoが自動でシンプルな入力欄を生成する。
 3. 送信されると `form_valid()` が「作成者」を補完し、`Category` モデル（`models.py`）経由でDBに保存、カテゴリ一覧画面へ遷移する。
@@ -494,7 +494,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/categories/)---------------| (success_url へリダイレクト)
 ```
 
-#### ⑫ カテゴリ削除
+#### ⑫ day08-カテゴリ削除
 1. `CategoryDeleteView`（`views.py`）が起動し、確認画面を表示したのち、ユーザーの同意をもって `Category` モデルから対象データを削除する。
 2. **裏側の連動処理**: `tasks/models.py` の `Task` クラス側で `category = models.ForeignKey(..., on_delete=models.SET_NULL)` と設定されている。
 3. この `on_delete=models.SET_NULL` の働きにより、カテゴリが消されても紐付いていたタスクは連動削除されず、カテゴリの項目だけが自動的に「未設定（Null）」に書き換わる。
@@ -517,7 +517,35 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(リダイレクト: /tasks/categories/)-----------------| (success_url へリダイレクト)
 ```
 
-#### ⑬ タイトル・説明文のキーワード検索
+#### ⑬ day08-カテゴリ一覧表示 
+```
+[ブラウザ] ----(GET: /tasks/categories/)----> [config/urls.py]
+                                                    | (先頭の 'tasks/' を検知)
+                                                    v
+                                             [tasks/urls.py]
+                                                    | (後半の 'categories/' を検知)
+                                                    v
+                                             [CategoryListView (views.py)]
+                                                    |
+                                                    |-- 1. LoginRequiredMixin が起動（未ログインならログイン画面へ）
+                                                    |-- 2. get_queryset() が自動的に起動
+                                                    |      ➔ Category.objects.filter(created_by=self.request.user)
+                                                    |         により「自分が作ったカテゴリ」だけをDBから選別して取得
+                                                    |-- 3. 取得したデータを変数「categories」に格納（context_object_name）
+                                                    v
+                                             [templates/tasks/category_list.html]
+                                                    |
+                                                    |-- 1. {% extends 'base.html' %} で共通のヘッダー等と合体
+                                                    |-- 2. {% if categories %} でデータが存在するかチェック
+                                                    |-- 3. {% for category in categories %} ループが起動
+                                                    |      ➔ 各カテゴリ名（{{ category.name }}）を1行ずつリスト形式で描画
+                                                    |      ➔ 各行の「削除」ボタンに、そのカテゴリの背番号（category.pk）を
+                                                    |         使った削除用リンク（tasks:category_delete）を自動生成
+                                                    v
+[ブラウザ] <---(自分のカテゴリが並んだ一覧画面を表示)------|
+```
+
+#### ⑭ day09-タイトル・説明文のキーワード検索
 1. 一覧画面の検索窓（`<input name="q">`）に文字を入力して「検索」を押すと、URLの末尾に `?q=会議` のような形でデータが送られる。
 2. `TaskListView`（`views.py`）の `get_queryset()` 内で、`self.request.GET.get('q')` を使ってその文字（`keyword`）を受け取る。
 3. `Q(title__icontains=keyword) | Q(description__icontains=keyword)` というDjangoの特殊な命令（Qオブジェクト）を使い、タイトル「または」説明文にその文字が含まれるタスクだけをDBから絞り込んで取得する。
@@ -540,7 +568,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(「会議」が含まれるタスク一覧を表示)------|
 ```
 
-#### ⑭ タスク一覧でのステータス・カテゴリでの絞り込み
+#### ⑮ day09-タスク一覧でのステータス・カテゴリでのフィルタリング
 1. 一覧画面のプルダウンで選択を行うと、URLの末尾に `?status=done&category=2` のように条件が乗る。
 2. `TaskListView` 内の `get_queryset()` が、送られてきた `status` や `category_id` の値を取り出す。
 3. `queryset.filter(status=status)` や `queryset.filter(category_id=category_id)` を順番に実行（条件の重ね掛け）し、一致するタスクだけを厳選してテンプレートに渡す。
@@ -562,7 +590,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(「進行中」かつ「カテゴリID:2」のタスク一覧を表示)----------------|
 ```
 
-#### ⑮ タスクが10件を超えたらページ分割（ページネーション）
+#### ⑯ day09-タスクが10件を超えたらページ分割（ページネーション）
 1. `TaskListView`（`views.py`）のクラス内に `paginate_by = 10` という設定が記述されている。
 2. Djangoがこの数値を読み取り、DBからタスク全件を取ってくるのではなく、自動的に「1〜10件目」のようにデータを切り分けて取得する（SQLのLIMIT/OFFSET処理）。
 3. `templates/tasks/task_list.html` 側の `{% if is_paginated %}` 以降のコードが動き、現在のページ番号や「前へ」「次へ」のリンクボタンを自動計算して画面下部に描画する。
@@ -582,7 +610,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(11〜20件目のタスクと、ページネーションバーを表示)---|
 ```
 
-#### ⑯ 操作完了後にフラッシュメッセージ表示
+#### ⑰ day09-操作完了後にフラッシュメッセージ表示
 1. 各種ビュー（例：`TaskCreateView`）の `form_valid()` などの処理が成功したタイミングで、`messages.success(self.request, 'タスクを作成しました。')` を実行する。
 2. Djangoがこのメッセージ内容を「セッション（ブラウザの一時的な記憶）」に一度保存し、リダイレクト先の画面へ引き継ぐ。
 3. 移動先の画面の土台である `templates/base.html` の中の `{% for message in messages %}` というパーツが自動的にそのメッセージを検知し、Bootstrapの警告枠（`alert-danger` や `alert-success`）を使って画面上部に1回だけ表示する。
@@ -611,7 +639,7 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
 [ブラウザ] <---(上部に緑色の「作成しました」という通知が入った一覧画面を表示)---|
 ```
 
-### ⑰http://localhost:8000 アクセス時のリダイレクト
+#### ⑱ http://localhost:8000 アクセス時のリダイレクト
 ```
 [ブラウザ] ----(GET: http://localhost:8000/ )----> [config/urls.py]
                                                           |
@@ -635,32 +663,4 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
                                                                |-- ➔ ログイン済なら機能 ④ のタスク一覧表示へ
                                                                v
 [ブラウザ] <---(タスク一覧画面を表示)--------------------------------|
-```
-
-### ⑱カテゴリ一覧表示 
-```
-[ブラウザ] ----(GET: /tasks/categories/)----> [config/urls.py]
-                                                    | (先頭の 'tasks/' を検知)
-                                                    v
-                                             [tasks/urls.py]
-                                                    | (後半の 'categories/' を検知)
-                                                    v
-                                             [CategoryListView (views.py)]
-                                                    |
-                                                    |-- 1. LoginRequiredMixin が起動（未ログインならログイン画面へ）
-                                                    |-- 2. get_queryset() が自動的に起動
-                                                    |      ➔ Category.objects.filter(created_by=self.request.user)
-                                                    |         により「自分が作ったカテゴリ」だけをDBから選別して取得
-                                                    |-- 3. 取得したデータを変数「categories」に格納（context_object_name）
-                                                    v
-                                             [templates/tasks/category_list.html]
-                                                    |
-                                                    |-- 1. {% extends 'base.html' %} で共通のヘッダー等と合体
-                                                    |-- 2. {% if categories %} でデータが存在するかチェック
-                                                    |-- 3. {% for category in categories %} ループが起動
-                                                    |      ➔ 各カテゴリ名（{{ category.name }}）を1行ずつリスト形式で描画
-                                                    |      ➔ 各行の「削除」ボタンに、そのカテゴリの背番号（category.pk）を
-                                                    |         使った削除用リンク（tasks:category_delete）を自動生成
-                                                    v
-[ブラウザ] <---(自分のカテゴリが並んだ一覧画面を表示)------|
 ```
