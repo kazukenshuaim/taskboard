@@ -636,3 +636,31 @@ Djangoは基本的に **「URL（urls.py） ➔ ビュー（views.py） ➔ モ�
                                                                v
 [ブラウザ] <---(タスク一覧画面を表示)--------------------------------|
 ```
+
+### ⑱カテゴリ一覧表示 
+```
+[ブラウザ] ----(GET: /tasks/categories/)----> [config/urls.py]
+                                                    | (先頭の 'tasks/' を検知)
+                                                    v
+                                             [tasks/urls.py]
+                                                    | (後半の 'categories/' を検知)
+                                                    v
+                                             [CategoryListView (views.py)]
+                                                    |
+                                                    |-- 1. LoginRequiredMixin が起動（未ログインならログイン画面へ）
+                                                    |-- 2. get_queryset() が自動的に起動
+                                                    |      ➔ Category.objects.filter(created_by=self.request.user)
+                                                    |         により「自分が作ったカテゴリ」だけをDBから選別して取得
+                                                    |-- 3. 取得したデータを変数「categories」に格納（context_object_name）
+                                                    v
+                                             [templates/tasks/category_list.html]
+                                                    |
+                                                    |-- 1. {% extends 'base.html' %} で共通のヘッダー等と合体
+                                                    |-- 2. {% if categories %} でデータが存在するかチェック
+                                                    |-- 3. {% for category in categories %} ループが起動
+                                                    |      ➔ 各カテゴリ名（{{ category.name }}）を1行ずつリスト形式で描画
+                                                    |      ➔ 各行の「削除」ボタンに、そのカテゴリの背番号（category.pk）を
+                                                    |         使った削除用リンク（tasks:category_delete）を自動生成
+                                                    v
+[ブラウザ] <---(自分のカテゴリが並んだ一覧画面を表示)------|
+```
