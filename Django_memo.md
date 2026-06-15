@@ -1,5 +1,21 @@
 # Djangoファイルのメモ
-
+## Dockerコマンド
+```
+docker compose up --build
+```
+`requirements.txt` を変更したあとは必ずこれを実行する
+```
+docker compose up
+```
+dbとwebコンテナを起動。
+```
+docker compose down
+```
+コンテナを停止する。同じポート`8000`のURL`http://localhost:8000`を別のディレクトリのプロジェクトで使いたいなら、これで停止してから別のプロジェクトのコンテナを起動する。
+```
+docker ps -a
+```
+コンテナのステータスを確認。
 ## ディレクトリ構成
 ```
 C:.
